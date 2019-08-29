@@ -33,7 +33,7 @@ class Checker_Deselect(Operator):
     @classmethod
     def poll(cls, context):
         if bpy.context.selected_objects !=[]:
-            return bpy.context.object.mode == 'EDIT_MESH' and bpy.context.object is not None
+            return bpy.context.object.mode == 'EDIT' and bpy.context.object is not None
 
     def execute(self, context):
         bpy.ops.mesh.select_all(action='SELECT')
@@ -46,6 +46,11 @@ class Add_Bevel(Operator):
     bl_label = 'Add Bevel'
     bl_options = {"REGISTER", "UNDO"}
 
+    @classmethod
+    def poll(cls, context):
+        if bpy.context.selected_objects !=[]:
+            return bpy.context.object.mode == 'OBJECT' and bpy.context.object is not None
+
     def execute(self, context):
         bpy.ops.object.modifier_add(type='BEVEL')
         bpy.context.object.modifiers["Bevel"].segments = 3
@@ -56,6 +61,11 @@ class Add_Subsurf(Operator):
     bl_idname = 'mesh.add_subsurf'
     bl_label = 'Add Subsurf'
     bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        if bpy.context.selected_objects !=[]:
+            return bpy.context.object.mode == 'OBJECT' and bpy.context.object is not None
 
     def execute(self, context):
         bpy.ops.object.modifier_add(type='SUBSURF')
@@ -73,7 +83,7 @@ class Add_UV_To_Hard_Edges(Operator):
     @classmethod
     def poll(cls, context):
         if bpy.context.selected_objects !=[]:
-            return bpy.context.object.mode == 'EDIT_MESH' and bpy.context.object is not None
+            return bpy.context.object.mode == 'EDIT' and bpy.context.object is not None
 
     def execute(self, context):
         bpy.ops.mesh.mark_seam(clear=True)
