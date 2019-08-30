@@ -96,10 +96,10 @@ class Add_UV_To_Hard_Edges(Operator):
         for edge in bm.edges:
             if edge.seam:
                 edge.select_set(True)
-                self.report({'INFO'}, 'Hard on the borders of uv installed.')
                 break
         bpy.ops.mesh.select_similar(type='SEAM', threshold=0.01)
         bpy.ops.mesh.mark_sharp()
+        self.report({'INFO'}, 'Hard on the borders of uv installed.')
         return {"FINISHED"}
 
 #-------------------------------------------------------
