@@ -86,20 +86,26 @@ class Add_UV_To_Hard_Edges(Operator):
             return bpy.context.object.mode == 'EDIT' and bpy.context.object is not None
 
     def execute(self, context):
-        bpy.ops.mesh.mark_seam(clear=True)
-        bpy.ops.uv.seams_from_islands()
+        sel_mode = bpy.context.scene.tool_settings.mesh_select_mode
+        if sel_mode[1] == 1:
 
-        obj = bpy.context.active_object
-        mesh = obj.data
-        bpy.ops.mesh.select_all(action='DESELECT')
-        bm = bmesh.from_edit_mesh(mesh)
-        for edge in bm.edges:
-            if edge.seam:
-                edge.select_set(True)
-                break
-        bpy.ops.mesh.select_similar(type='SEAM', threshold=0.01)
-        bpy.ops.mesh.mark_sharp()
-        self.report({'INFO'}, 'Hard on the borders of uv installed.')
+            bpy.ops.mesh.mark_seam(clear=True)
+            bpy.ops.uv.seams_from_islands()
+
+            obj = bpy.context.active_object
+            mesh = obj.data
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bm = bmesh.from_edit_mesh(mesh)
+            for edge in bm.edges:
+                if edge.seam:
+                    edge.select_set(True)
+                    break
+            bpy.ops.mesh.select_similar(type='SEAM', threshold=0.01)
+            bpy.ops.mesh.mark_sharp()
+            self.report({'INFO'}, 'Hard on the borders of uv installed.')
+
+        if sel_mode[1] == 0 or sel_mode[1] == 2:
+            self.report({'ERROR'},'You need to switch to edge mode.')
         return {"FINISHED"}
 
 #-------------------------------------------------------
