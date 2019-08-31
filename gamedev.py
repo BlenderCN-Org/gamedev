@@ -3,16 +3,17 @@ Author: Alexander Khorkov - playrix
 '''
 
 bl_info = {
-    "name": "Gamedev Utilities",
-    "description": "Utilities for game dev",
+    "name": "Game Dev Toolset",
+    "description": "Toolset for Game Dev",
     "author": "Alexander Khorkov",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (2, 80, 0),
     "warning": "Beta Release",
     "location": "3D View > Toolbox",
     "category": "Object",
 }
 
+#-------------------------------------------------------
 import bpy
 import bmesh
 
@@ -53,7 +54,13 @@ class Add_Bevel(Operator):
 
     def execute(self, context):
         bpy.ops.object.modifier_add(type='BEVEL')
-        bpy.context.object.modifiers["Bevel"].segments = 3
+        bpy.context.object.modifiers["Bevel"].width = 0.05
+        bpy.context.object.modifiers["Bevel"].segments = 4
+        bpy.context.object.modifiers["Bevel"].profile = 1
+        bpy.context.object.modifiers["Bevel"].use_clamp_overlap = True
+        bpy.context.object.modifiers["Bevel"].loop_slide = False
+        bpy.context.object.modifiers["Bevel"].limit_method = 'WEIGHT'
+        bpy.context.object.modifiers["Bevel"].offset_type = 'WIDTH'
         return {"FINISHED"}
 
 class Add_Subsurf(Operator):
@@ -72,6 +79,22 @@ class Add_Subsurf(Operator):
         bpy.context.object.modifiers["Subdivision"].render_levels = 3
         bpy.context.object.modifiers["Subdivision"].levels = 3
         bpy.context.object.modifiers["Subdivision"].show_on_cage = True
+        bpy.ops.object.shade_smooth()
+        return {"FINISHED"}
+
+class Add_Triangulate(Operator):
+    """Add Triangulate"""
+    bl_idname = 'mesh.add_triangulate'
+    bl_label = 'Add Tiangulate'
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        if bpy.context.selected_objects !=[]:
+            return bpy.context.object.mode == 'EDIT' and bpy.context.object is not None
+
+    def execute(self, context):
+        bpy.ops.mesh.quads_convert_to_tris()
         return {"FINISHED"}
 
 class Add_UV_To_Hard_Edges(Operator):
@@ -111,15 +134,16 @@ class Add_UV_To_Hard_Edges(Operator):
 #-------------------------------------------------------
 class VIEW3D_PT_checker_deselect(Panel):
     bl_idname = "panel.panel3"
-    bl_label = "Gamedev Utilities"
+    bl_label = "Game Dev Toolset"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Gamedev Utilities"
+    bl_category = "Game Dev Toolset"
 
     def draw(self, context):
         self.layout.operator("mesh.checker_deselect", text="Checker Deselect")
         self.layout.operator("mesh.add_bevel", text="Add Bevel")
         self.layout.operator("mesh.add_subsurf", text="Add Subsurf")
+        self.layout.operator("mesh.add_triangulate", text="Add Tiangulate")
         self.layout.operator("mesh.add_uv_to_hard_edges", text="UVs to Hard Edges")
 
 #-------------------------------------------------------
@@ -128,8 +152,11 @@ classes = (
     Checker_Deselect,
     Add_Bevel,
     Add_Subsurf,
+    Add_Triangulate,
     Add_UV_To_Hard_Edges
 )
+
+#-------------------------------------------------------
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
